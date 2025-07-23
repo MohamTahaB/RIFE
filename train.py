@@ -141,6 +141,8 @@ if __name__ == "__main__":
     parser.add_argument('--batch_size', default=16, type=int, help='minibatch size')
     parser.add_argument('--local_rank', default=0, type=int, help='local rank')
     parser.add_argument('--world_size', default=4, type=int, help='world size')
+    parser.add_argument('--pretrained', type=str, default=None, help='Path to pretrained model .pkl file')
+
     args = parser.parse_args()
     torch.distributed.init_process_group(backend="nccl", world_size=args.world_size)
     torch.cuda.set_device(args.local_rank)
@@ -151,5 +153,8 @@ if __name__ == "__main__":
     torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.benchmark = True
     model = Model(args.local_rank)
+    if args.pretrained is not None:
+        print(f"Loading pretrained model from {args.pretrained}")
+        model.load_model(args.pretrained)
     train(model, args.local_rank)
         
